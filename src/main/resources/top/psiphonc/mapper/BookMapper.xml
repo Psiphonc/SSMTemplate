@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.psiphonc.mapper.BookMapper">
+    <!--int addBook(Book book);-->
+    <insert id="addBook" useGeneratedKeys="true" parameterType="Book">
+        insert into ssmbuild.books (book_id, book_name, book_count, detail) VALUE (#{bookId}, #{bookName}, #{bookCount}, #{detail})
+    </insert>
+    <!--int deleteBook(Integer bookId);-->
+    <delete id="deleteBook">
+        delete from ssmbuild.books where book_id = #{bookId}
+    </delete>
+    <!--int updateBook(Book book);-->
+    <update id="updateBook" parameterType="Book">
+        update ssmbuild.books
+            <set>
+                <if test="bookName != null">book_name = #{bookName},</if>
+                <if test="bookCount != null">book_count = #{bookCount},</if>
+                <if test="detail != null">detail = #{detail},</if>
+            </set>
+        where book_id = #{bookId}
+    </update>
+    <!--Book queryBookById(Integer bookId);-->
+    <select id="queryBookById" resultType="Book">
+        select book_id, book_name, book_count, detail from ssmbuild.books where book_id = #{bookId}
+    </select>
+    <!--List<Book> queryBooks();-->
+    <select id="queryBooks" resultType="Book">
+        select book_id, book_name, book_count, detail from ssmbuild.books
+    </select>
+    <!--模糊查询-->
+    <select id="queryBookByName" resultType="Book">
+        <!--方法1 使用动态sql绑定新变量-->
+        <!--<bind name="pattern" value="'%' + bookName + '%'" />-->
+        <!--select book_id, book_name, book_count, detail-->
+        <!--from ssmbuild.books-->
+        <!--where book_name like #{pattern}-->
+        <!--方法2 使用mysql自带的concat函数-->
+        select book_id, book_name, book_count, detail
+        from ssmbuild.books
+        where book_name like CONCAT('%',#{bookName},'%')
+    </select>
+</mapper>

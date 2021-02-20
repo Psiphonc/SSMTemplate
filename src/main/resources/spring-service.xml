@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:app="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--扫描service包下由注解标注的类自动添加到容器中-->
+    <context:component-scan base-package="top.psiphonc.service"/>
+    <!--将所有Service类注入到Spring-->
+    <bean id="bookService" class="top.psiphonc.service.BookServiceImpl">
+        <!--这里的BookMapper是MapperScannerConfigurer自动注入到容器中的-->
+        <property name="bookMapper" ref="bookMapper"/>
+    </bean>
+    <!--声明式事务-->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <!--注入数据源-->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--AOP切入事务-->
+    <tx:advice id="transactionInterceptor" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <app:config>
+        <app:pointcut id="txPointCut" expression="execution(* top.psiphonc.service.*.*(..))"/>
+        <app:advisor advice-ref="transactionInterceptor"  pointcut-ref="txPointCut"/>
+    </app:config>
+</beans>
